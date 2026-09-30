@@ -141,6 +141,14 @@ Spacefast (the Space ID is in `.spacefast/space.json`). The download button reso
 DMG from the GitHub Releases API at runtime. Design context lives in `docs/PRODUCT.md` and
 `docs/DESIGN.md`.
 
+The site tracks nothing. The fonts (EB Garamond, Fraunces Black) are self-hosted in
+`site/assets/fonts/` as latin-subset WOFF2 files, with their OFL licenses alongside. The GitHub
+Releases API call is the only request the page makes to another host.
+
+## Branches
+
+`main` is protected: every change goes through a pull request. Work on a branch and open a PR.
+
 ## What NOT to do
 
 - Do not add signing, notarization, or helper daemons.
@@ -148,5 +156,7 @@ DMG from the GitHub Releases API at runtime. Design context lives in `docs/PRODU
   rejects the bundle. Only the bundle and display name carry the accent.
 - Do not add a main window, a settings window, or further options (display toggles, custom
   durations). The carte, Launch at Login and the About window are the whole app.
+- Do not add analytics, trackers, or fonts, scripts and styles loaded from another host to the site.
+- Do not push to `main` directly.
 - Do not commit anything under `docs/`.
 - Do not add `Co-Authored-By` to commits.
