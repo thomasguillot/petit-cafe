@@ -141,10 +141,14 @@ so update it by hand when the glyph changes.
 
 ## The site
 
-`site/index.html` is a single static page with all CSS and JS inline. It is published to
-Spacefast (the Space ID is in `.spacefast/space.json`). The download button resolves the latest
-DMG from the GitHub Releases API at runtime. Design context lives in `docs/PRODUCT.md` and
-`docs/DESIGN.md`.
+`site/index.html` is a single static page with all CSS and JS inline. The download button
+resolves the latest DMG from the GitHub Releases API at runtime. Design context lives in
+`docs/PRODUCT.md` and `docs/DESIGN.md`.
+
+The site is hosted on Spacefast at https://petitcafe.view.fast/ (the Space ID is in
+`.spacefast/space.json`). The Space is connected to this repository: a merge to `main` deploys
+`site/` to production, and a pull request gets a preview. The root directory is set to `site` on
+the connection and there is no build step. Do not publish by hand; merge instead.
 
 The site tracks nothing. The fonts (EB Garamond, Fraunces Black) are self-hosted in
 `site/assets/fonts/` as latin-subset WOFF2 files, with their OFL licenses alongside. The GitHub
