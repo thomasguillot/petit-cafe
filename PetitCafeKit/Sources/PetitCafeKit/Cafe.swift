@@ -1,7 +1,7 @@
 import Foundation
 
 public enum Cafe: String, CaseIterable, Sendable {
-    case express
+    case expresso
     case noisette
     case allonge
     case double
@@ -10,7 +10,7 @@ public enum Cafe: String, CaseIterable, Sendable {
 
     public var name: String {
         switch self {
-        case .express: "Express"
+        case .expresso: "Expresso"
         case .noisette: "Noisette"
         case .allonge: "Allongé"
         case .double: "Double"
@@ -21,7 +21,7 @@ public enum Cafe: String, CaseIterable, Sendable {
 
     public var durationLabel: String {
         switch self {
-        case .express: "15 Minutes"
+        case .expresso: "15 Minutes"
         case .noisette: "30 Minutes"
         case .allonge: "1 Hour"
         case .double: "2 Hours"
@@ -32,7 +32,7 @@ public enum Cafe: String, CaseIterable, Sendable {
 
     public var seconds: TimeInterval? {
         switch self {
-        case .express: 15 * 60
+        case .expresso: 15 * 60
         case .noisette: 30 * 60
         case .allonge: 60 * 60
         case .double: 2 * 60 * 60

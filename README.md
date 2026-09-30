@@ -18,7 +18,7 @@ Click the cup in the menu bar and order from the carte:
 
 | Café | Keeps your Mac awake for |
 | --- | --- |
-| Express | 15 minutes |
+| Expresso | 15 minutes |
 | Noisette | 30 minutes |
 | Allongé | 1 hour |
 | Double | 2 hours |

@@ -87,7 +87,7 @@ so update it by hand when the glyph changes.
 
 ## How the app works
 
-- `Cafe` (PetitCafeKit) is the carte: Express (15 minutes), Noisette (30 minutes), Allongé
+- `Cafe` (PetitCafeKit) is the carte: Expresso (15 minutes), Noisette (30 minutes), Allongé
   (1 hour), Double (2 hours), Grand crème (5 hours), À volonté (indefinitely).
 - `AwakeSession` owns all state: the active café and its end date. It is `@MainActor` and
   reports changes through `onChange`.

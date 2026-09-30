@@ -76,7 +76,7 @@ struct AwakeSessionTests {
         var changes = 0
         session.onChange = { changes += 1 }
 
-        session.serve(.express)
+        session.serve(.expresso)
         await session.expiry?.value
 
         #expect(!session.isOn)
@@ -86,7 +86,7 @@ struct AwakeSessionTests {
 
     @Test func orderingAnotherCafeCancelsThePreviousExpiry() async {
         let session = makeSession()
-        session.serve(.express)
+        session.serve(.expresso)
         let first = session.expiry
 
         session.serve(.aVolonte)
@@ -98,7 +98,7 @@ struct AwakeSessionTests {
 
     @Test func aFailureWhileAnotherCafeIsActiveSwitchesOff() {
         let session = makeSession()
-        session.serve(.express)
+        session.serve(.expresso)
         preventer.succeeds = false
 
         session.serve(.double)
