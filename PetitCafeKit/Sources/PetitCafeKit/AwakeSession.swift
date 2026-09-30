@@ -30,10 +30,25 @@ public final class AwakeSession {
     }
 
     public func serve(_ cafe: Cafe) {
+        start(cafe, for: cafe.seconds)
+    }
+
+    /// Picks a café back up where it left off: a timed café runs until its original end date,
+    /// and one whose end date has passed is left off.
+    public func resume(_ cafe: Cafe, until endDate: Date?) {
+        guard cafe.seconds != nil else {
+            start(cafe, for: nil)
+            return
+        }
+        guard let remaining = endDate?.timeIntervalSince(now()), remaining > 0 else { return }
+        start(cafe, for: remaining)
+    }
+
+    private func start(_ cafe: Cafe, for seconds: TimeInterval?) {
         expiry?.cancel()
         expiry = nil
 
-        guard preventer.prevent(timeout: cafe.seconds.map { $0 + Self.systemTimeoutGrace }) else {
+        guard preventer.prevent(timeout: seconds.map { $0 + Self.systemTimeoutGrace }) else {
             active = nil
             endDate = nil
             onChange?()
@@ -41,9 +56,9 @@ public final class AwakeSession {
         }
 
         active = cafe
-        endDate = cafe.seconds.map { now().addingTimeInterval($0) }
+        endDate = seconds.map { now().addingTimeInterval($0) }
 
-        if let seconds = cafe.seconds {
+        if let seconds {
             let sleep = sleep
             expiry = Task { [weak self] in
                 try? await sleep(.seconds(seconds))
