@@ -145,7 +145,7 @@ so update it by hand when the glyph changes.
 resolves the latest DMG from the GitHub Releases API at runtime. Design context lives in
 `docs/PRODUCT.md` and `docs/DESIGN.md`.
 
-The site is hosted on Spacefast at https://petitcafe.view.fast/ (the Space ID is in
+The site is hosted on Spacefast at https://petit-cafe.view.fast/ (the Space ID is in
 `.spacefast/space.json`). The Space is connected to this repository: a merge to `main` deploys
 `site/` to production, and a pull request gets a preview. The root directory is set to `site` on
 the connection and there is no build step. Do not publish by hand; merge instead.
