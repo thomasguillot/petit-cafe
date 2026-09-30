@@ -8,6 +8,7 @@ import Observation
 final class UpdateController {
     private(set) var state: UpdateState = .idle
     private(set) var plan: UpdatePlan?
+    var onWillRelaunch: (() -> Void)?
 
     private let currentVersion: AppVersion?
     private let fetcher: ReleaseFetcher
@@ -150,6 +151,7 @@ final class UpdateController {
         do {
             let installedPath = try installer.install(dmgAt: dmg, expectedVersion: displayVersion(plan.version))
             downloadedDMG = nil
+            onWillRelaunch?()
             // relaunch() terminates this instance; applicationWillTerminate releases the
             // keep-awake first, and the spawned script reopens the new copy.
             installer.relaunch(path: installedPath)

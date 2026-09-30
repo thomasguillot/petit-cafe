@@ -111,6 +111,11 @@ so update it by hand when the glyph changes.
   and relaunches. `UpdateScheduler` runs one background check 10 minutes after launch when
   `autoCheckForUpdates` is on. The About window (`AboutWindow.swift`) has the manual check and
   that checkbox. Keep the two projects' updaters in step when fixing either.
+- An update keeps the café that was active. Just before the relaunch the app records the café
+  and its end date in `UserDefaults` (`CafeHandover`, Kit), and the new copy takes it on launch
+  and calls `AwakeSession.resume`, with no notification. A timed café keeps its original end
+  time. The record is only honored for five minutes, so a relaunch that never happened cannot
+  switch a café on later. An ordinary quit still ends the café.
 - The DMG must keep `Petit Café.app` at its root under that exact name, or the installer
   reports a missing app.
 - The updater has diverged from Hosts Switchr in these ways, all of which Hosts Switchr would

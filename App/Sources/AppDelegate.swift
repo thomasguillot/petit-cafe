@@ -35,8 +35,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem = item
 
         session.onChange = { [weak self] in self?.sessionChanged() }
+        resumeAfterUpdate()
         renderIcon()
 
+        updateController.onWillRelaunch = { [weak self] in self?.leaveCafeForRelaunch() }
         updateScheduler.start()
 
         LaunchAtLogin.enableByDefault(
@@ -49,6 +51,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         isTerminating = true
         session.stop()
+    }
+
+    private func leaveCafeForRelaunch() {
+        CafeHandover.save(session.active, endDate: session.endDate, defaults: .standard, now: Date())
+    }
+
+    // The café carries on from before the update, so there is no change to announce.
+    private func resumeAfterUpdate() {
+        guard let handover = CafeHandover.take(defaults: .standard, now: Date()) else { return }
+        lastActive = handover.cafe
+        session.resume(handover.cafe, until: handover.endDate)
+        lastActive = session.active
     }
 
     @objc private func statusItemClicked() {
