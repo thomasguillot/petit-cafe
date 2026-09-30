@@ -4,7 +4,7 @@
 
 A small macOS menu-bar app that keeps your Mac awake. Order a café, and it turns itself off when the time is up. It is `caffeinate`, from the menu bar.
 
-**→ [Website](https://petitcafe.view.fast/)**: the download there always points at the latest release.
+**→ [Website](https://petit-cafe.view.fast/)**: the download there always points at the latest release.
 
 **Requires a Mac with Apple silicon and macOS 26 (Tahoe) or later. There is no Intel build. Unsigned: no Apple Developer Program needed.**
 
