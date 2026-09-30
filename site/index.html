@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en" data-state="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petit Café: keep your Mac awake from the menu bar</title>
+<meta name="description" content="Petit Café is a small, free, open source menu bar app for Apple silicon Macs on macOS Tahoe that keeps your Mac awake for as long as you choose.">
+<meta name="theme-color" content="#1f3d33">
+<link rel="icon" href="assets/icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Petit Café">
+<meta property="og:description" content="A small menu bar app that keeps your Mac awake for as long as you choose. Free and open source.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Fraunces:opsz,wght@9..144,900&display=swap" rel="stylesheet">
+<style>
+:root {
+	--stock: oklch(0.962 0.02 92);
+	--stock-shade: oklch(0.935 0.024 92);
+	--ink: oklch(0.3 0.055 165);
+	--ink-soft: oklch(0.44 0.04 165);
+	--rule: oklch(0.3 0.055 165 / 0.28);
+	--cover: oklch(0.29 0.055 165);
+	--cover-ink: oklch(0.95 0.028 92);
+	--cover-soft: oklch(0.83 0.03 105);
+	--cover-rule: oklch(0.95 0.028 92 / 0.4);
+	--oxblood: oklch(0.4 0.12 22);
+
+	--display: Fraunces, Didot, "Bodoni 72", Georgia, serif;
+	--body: "EB Garamond", Garamond, "Hoefler Text", Georgia, serif;
+	--system: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+	--ease: cubic-bezier(0.16, 1, 0.3, 1);
+	--margin: clamp(1.25rem, 5vw, 5rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+	background: var(--cover);
+	scroll-snap-type: y proximity;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	position: relative;
+	margin: 0;
+	font-family: var(--body);
+	font-size: 1.3125rem;
+	line-height: 1.5;
+	color: var(--ink);
+	background: var(--stock);
+	-webkit-font-smoothing: antialiased;
+}
+
+p { margin: 0; }
+
+button {
+	font: inherit;
+	color: inherit;
+}
+
+:focus-visible {
+	outline: 2px solid var(--oxblood);
+	outline-offset: 3px;
+}
+
+.cover :focus-visible,
+.back :focus-visible,
+.plate :focus-visible {
+	outline-color: var(--cover-ink);
+}
+
+.cover,
+.closer,
+.back {
+	color: var(--cover-ink);
+	background: var(--cover);
+	text-align: center;
+}
+
+main { display: contents; }
+
+.cover,
+.page,
+.back {
+	min-height: 100svh;
+	scroll-snap-align: start;
+}
+
+.stops { display: none; }
+
+.cover {
+	display: grid;
+	padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.cover-frame {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: clamp(2rem, min(7vw, 8vh), 5rem) clamp(1rem, 5vw, 4rem);
+	border: 1px solid var(--cover-rule);
+	outline: 1px solid var(--cover-rule);
+	outline-offset: -7px;
+}
+
+.cover-est {
+	font-family: var(--display);
+	font-size: 0.75rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.3em;
+	margin-right: -0.3em;
+	color: var(--cover-soft);
+}
+
+.wordmark {
+	margin: clamp(1.5rem, 4vh, 3rem) 0 0;
+	font-family: var(--display);
+	font-size: clamp(3.5rem, min(12vw, 17vh), 10rem);
+	font-weight: 900;
+	line-height: 0.95;
+	letter-spacing: -0.02em;
+}
+
+.word {
+	display: inline-block;
+	margin: -0.22em -0.06em -0.12em;
+	padding: 0.22em 0.06em 0.12em;
+	clip-path: inset(0);
+}
+
+.letter { display: inline-block; }
+
+.cover-line {
+	max-width: 24rem;
+	margin-top: clamp(1.25rem, 3vh, 2rem);
+	font-size: clamp(1.3125rem, 1.9vw, 1.5625rem);
+	line-height: 1.4;
+	text-wrap: balance;
+}
+
+.plaque {
+	display: inline-block;
+	margin-top: clamp(2rem, 5vh, 3rem);
+	padding: 1rem 2.25rem;
+	font-family: var(--display);
+	font-size: 0.8125rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.22em;
+	text-indent: 0.22em;
+	text-decoration: none;
+	color: var(--ink);
+	background: var(--cover-ink);
+	box-shadow: 0 0 0 4px var(--cover), 0 0 0 5px var(--cover-ink);
+	transition: background-color 200ms ease, color 200ms ease, transform 160ms var(--ease);
+}
+
+.plaque:hover,
+.plaque.is-hover {
+	color: var(--cover-ink);
+	background: var(--cover);
+}
+
+.plaque.is-focus {
+	outline: 2px solid var(--cover-ink);
+	outline-offset: 8px;
+}
+
+.leaf,
+.leaf-inner { display: contents; }
+
+.leaf-right,
+.gap,
+.closer,
+.stops span:nth-child(5) { display: none; }
+
+.plaque:focus-visible { outline-offset: 8px; }
+
+.cover-meta {
+	margin-top: 1.75rem;
+	font-size: 1.125rem;
+	font-style: italic;
+	color: var(--cover-soft);
+}
+
+.spread {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	background: var(--stock);
+}
+
+.page {
+	display: grid;
+	align-content: center;
+	padding: clamp(2.5rem, min(8vw, 7vh), 7.5rem) var(--margin);
+}
+
+.page + .page { border-left: 1px solid var(--rule); }
+
+.page-inner {
+	width: 100%;
+	max-width: 30rem;
+	margin: 0 auto;
+}
+
+.course {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.125rem;
+	margin: 0;
+	font-family: var(--display);
+	font-size: 0.9375rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.3em;
+}
+
+.course span { margin-right: -0.3em; }
+
+.course::before,
+.course::after {
+	content: "";
+	flex: none;
+	width: 0.375rem;
+	height: 0.375rem;
+	background: currentColor;
+	transform: rotate(45deg);
+}
+
+.status,
+.lede {
+	margin-top: 1rem;
+	text-align: center;
+	color: var(--ink-soft);
+	text-wrap: balance;
+}
+
+.status {
+	font-style: italic;
+	transition: opacity 200ms var(--ease);
+}
+
+.status.is-swapping {
+	opacity: 0;
+	transition-duration: 120ms;
+}
+
+.carte {
+	margin: clamp(1.25rem, 3vh, 2.25rem) 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dish {
+	position: relative;
+	display: block;
+	width: 100%;
+	padding: 0.5625rem 0;
+	border: 0;
+	text-align: left;
+	background: none;
+	cursor: pointer;
+}
+
+.dish::before {
+	content: "";
+	position: absolute;
+	top: 1.25rem;
+	left: -1.0625rem;
+	width: 0.4375rem;
+	height: 0.4375rem;
+	background: var(--oxblood);
+	opacity: 0;
+	transform: rotate(45deg);
+	transition: opacity 200ms ease;
+}
+
+.dish[aria-pressed="true"]::before { opacity: 1; }
+
+.dish-line {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	font-size: 1.375rem;
+	line-height: 1.3;
+}
+
+.dish-name {
+	font-family: var(--display);
+	font-size: 1.25rem;
+	font-weight: 900;
+	transition: color 200ms ease;
+}
+
+.dish[aria-pressed="true"] .dish-name { color: var(--oxblood); }
+
+.leader {
+	flex: 1;
+	min-width: 1.5rem;
+	border-bottom: 1px dotted var(--ink-soft);
+	transform: translateY(-0.25em);
+	transition: border-color 200ms ease;
+}
+
+.dish:hover .leader {
+	border-bottom-style: solid;
+	border-bottom-color: var(--ink);
+}
+
+.dish-note {
+	display: block;
+	font-size: 1.1875rem;
+	font-style: italic;
+	line-height: 1.35;
+	color: var(--ink-soft);
+}
+
+.footnote {
+	margin-top: clamp(1.5rem, 3vh, 2.5rem);
+	font-size: 1.125rem;
+	font-style: italic;
+	text-align: center;
+	color: var(--ink-soft);
+}
+
+.plate {
+	margin: clamp(1.75rem, 4vw, 2.5rem) 0 0;
+}
+
+.desk {
+	padding-bottom: 1.5rem;
+	color: var(--cover-ink);
+	background: var(--cover);
+	box-shadow: 0 0 0 5px var(--stock), 0 0 0 6px var(--rule);
+	font-family: var(--system);
+	font-size: 0.8125rem;
+	line-height: 1.25;
+}
+
+.menubar {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.75rem;
+	height: 1.75rem;
+	padding: 0 0.75rem;
+	background: oklch(0.24 0.045 165);
+}
+
+.mb-cup {
+	display: grid;
+	place-items: center;
+	width: 1.75rem;
+	height: 1.5rem;
+	border-radius: 0.375rem;
+	background: oklch(0.95 0.028 92 / 0.16);
+}
+
+.mb-cup svg {
+	width: 1.125rem;
+	height: 1.125rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.steam {
+	opacity: 0;
+	transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+}
+
+[data-state="on"] .steam { opacity: 1; }
+
+.clock { font-variant-numeric: tabular-nums; }
+
+.menu {
+	width: min(18.5rem, calc(100% - 1.5rem));
+	margin: 0.3125rem 0.75rem 0 auto;
+	padding: 0.3125rem;
+	border-radius: 0.75rem;
+	color: oklch(0.24 0.015 165);
+	background: oklch(0.975 0.006 92);
+	box-shadow: 0 0 0 0.5px oklch(0.2 0.03 165 / 0.3), 0 14px 30px oklch(0.15 0.04 165 / 0.45);
+}
+
+.menu-status {
+	overflow: hidden;
+	padding: 0.25rem 0.625rem 0.25rem 1.5rem;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	color: oklch(0.24 0.015 165 / 0.6);
+}
+
+.menu hr {
+	height: 1px;
+	margin: 0.3125rem 0.625rem;
+	border: 0;
+	background: oklch(0.24 0.015 165 / 0.14);
+}
+
+.menu button {
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	gap: 1.5rem;
+	width: 100%;
+	padding: 0.25rem 0.625rem 0.25rem 1.5rem;
+	border: 0;
+	border-radius: 0.4375rem;
+	text-align: left;
+	background: none;
+	cursor: default;
+}
+
+.menu button:hover,
+.menu button:focus-visible {
+	color: oklch(0.99 0.003 92);
+	background: oklch(0.52 0.19 258);
+	outline: none;
+}
+
+@supports (color: AccentColor) {
+	.menu button:hover,
+	.menu button:focus-visible {
+		color: AccentColorText;
+		background: AccentColor;
+	}
+}
+
+.menu button.picking {
+	color: inherit;
+	background: none;
+}
+
+.menu button.picking.hl {
+	color: oklch(0.99 0.003 92);
+	background: oklch(0.52 0.19 258);
+}
+
+@supports (color: AccentColor) {
+	.menu button.picking {
+		color: inherit;
+		background: none;
+	}
+
+	.menu button.picking.hl {
+		color: AccentColorText;
+		background: AccentColor;
+	}
+}
+
+.menu button[aria-pressed="true"]::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 0.5625rem;
+	width: 0.3125rem;
+	height: 0.5625rem;
+	border: solid currentColor;
+	border-width: 0 1.5px 1.5px 0;
+	transform: translateY(-65%) rotate(40deg);
+}
+
+.badge { opacity: 0.6; }
+
+.plate figcaption {
+	margin-top: 1.125rem;
+	font-size: 1.125rem;
+	font-style: italic;
+	text-align: center;
+	color: var(--ink-soft);
+}
+
+.maison {
+	margin: clamp(1.75rem, 4vh, 2.75rem) 0 0;
+}
+
+.maison div + div { margin-top: 1.125rem; }
+
+.maison dt {
+	display: inline;
+	font-weight: 600;
+}
+
+.maison dd {
+	display: inline;
+	margin: 0;
+	color: var(--ink-soft);
+}
+
+.steps {
+	margin: clamp(1.75rem, 4vw, 2.5rem) 0 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: step;
+}
+
+.steps li {
+	position: relative;
+	padding: 1rem 0 1rem 3.25rem;
+	border-top: 1px solid var(--rule);
+	counter-increment: step;
+}
+
+.steps li:last-child { border-bottom: 1px solid var(--rule); }
+
+.steps li::before {
+	content: counter(step);
+	position: absolute;
+	top: 0.5rem;
+	left: 0.25rem;
+	font-family: var(--display);
+	font-size: 2rem;
+	font-weight: 900;
+	line-height: 1.5;
+	color: var(--oxblood);
+}
+
+.steps strong { font-weight: 600; }
+
+.back {
+	display: grid;
+	padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.back-frame {
+	display: grid;
+	align-content: center;
+	padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 4rem);
+	border: 1px solid var(--cover-rule);
+	outline: 1px solid var(--cover-rule);
+	outline-offset: -7px;
+}
+
+.back-title {
+	margin: 0;
+	font-family: var(--display);
+	font-size: clamp(2.75rem, 7vw, 5.5rem);
+	font-weight: 900;
+	line-height: 1;
+	letter-spacing: -0.02em;
+}
+
+.back-line {
+	max-width: 28rem;
+	margin: 1.5rem auto 0;
+	text-wrap: balance;
+}
+
+.pourboire {
+	margin-top: clamp(2rem, 5vh, 3.5rem);
+}
+
+.pourboire p {
+	max-width: 26rem;
+	margin: 0.875rem auto 0;
+	font-size: 1.1875rem;
+	color: var(--cover-soft);
+	text-wrap: balance;
+}
+
+.pourboire a,
+.colophon a {
+	color: var(--cover-ink);
+	text-decoration-color: var(--cover-rule);
+	text-underline-offset: 0.25em;
+}
+
+.pourboire a:hover { text-decoration-color: currentColor; }
+
+.ext {
+	display: inline-block;
+	margin-left: 0.25em;
+	font-family: var(--system);
+	font-size: 0.85em;
+}
+
+.arrow {
+	font-family: var(--system);
+	font-size: 0.85em;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.colophon {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem 2rem;
+	margin: clamp(1.75rem, 4vh, 3rem) 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 1.125rem;
+}
+
+.colophon a {
+	display: inline-block;
+	padding: 0.375rem 0;
+	color: inherit;
+	text-decoration-color: var(--cover-rule);
+	text-underline-offset: 0.25em;
+}
+
+.colophon a:hover { text-decoration-color: currentColor; }
+
+.signature {
+	margin-top: 1.25rem;
+	font-size: 1.125rem;
+	font-style: italic;
+	color: var(--cover-soft);
+}
+
+@media (max-width: 60rem) {
+	.spread { grid-template-columns: minmax(0, 1fr); }
+
+	.page + .page {
+		border-left: 0;
+		border-top: 1px solid var(--rule);
+	}
+}
+
+@media (min-width: 60rem) and (min-height: 50rem) {
+	html { scroll-snap-type: y mandatory; }
+
+	.cover,
+	.spread,
+	.back {
+		position: sticky;
+		top: 0;
+		height: 100svh;
+		min-height: 0;
+		overflow: hidden;
+		scroll-snap-align: none;
+	}
+
+	.page {
+		min-height: 0;
+		scroll-snap-align: none;
+	}
+
+	.spread,
+	.back {
+		box-shadow: 0 -1.5rem 3.5rem oklch(0.15 0.04 165 / 0.3);
+	}
+
+	.stops {
+		display: block;
+		position: absolute;
+		inset: 0 0 auto;
+		pointer-events: none;
+	}
+
+	.stops span {
+		display: block;
+		height: 100svh;
+		scroll-snap-align: start;
+		scroll-snap-stop: always;
+	}
+}
+
+@media (max-width: 30rem) {
+	.dish-line { font-size: 1.1875rem; }
+	.dish::before { left: -0.875rem; }
+
+	.plaque { padding-inline: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.cover-frame > * {
+		animation: rise 900ms var(--ease) backwards;
+	}
+
+	.plaque:active { transform: scale(0.97); }
+
+	.steam { transform: translateY(1.5px); }
+
+	[data-state="on"] .steam { transform: none; }
+
+	.cover-frame > :nth-child(1) { animation-delay: 100ms; }
+	.cover-frame > :nth-child(3) { animation-delay: 950ms; }
+	.cover-frame > :nth-child(4) { animation-delay: 1100ms; }
+	.cover-frame > :nth-child(5) { animation-delay: 1250ms; }
+
+	.cover-frame > .wordmark { animation: none; }
+
+	.letter {
+		animation: letter 900ms var(--ease) backwards;
+		animation-delay: calc(300ms + var(--i) * 45ms);
+	}
+
+	.js .reveal {
+		opacity: 0;
+		transform: translateY(1.5rem);
+		transition: opacity 900ms var(--ease) 150ms, transform 900ms var(--ease) 150ms;
+	}
+
+	.js .reveal.is-in {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes letter {
+	from { transform: translateY(130%); }
+}
+
+@keyframes rise {
+	from { opacity: 0; transform: translateY(0.75rem); }
+}
+
+@keyframes shade {
+	to { opacity: 0.35; }
+}
+
+@supports (animation-timeline: view()) and (timeline-scope: --page) {
+	@media (min-width: 60rem) and (min-height: 50rem) and (prefers-reduced-motion: no-preference) {
+		body { timeline-scope: --page-2, --page-3, --page-4; }
+
+		.stops span:nth-child(2) { view-timeline-name: --page-2; }
+		.stops span:nth-child(3) { view-timeline-name: --page-3; }
+		.stops span:nth-child(4) { view-timeline-name: --page-4; }
+
+		.cover::after,
+		.spread::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: oklch(0.15 0.04 165);
+			opacity: 0;
+			pointer-events: none;
+			animation: shade linear both;
+			animation-range: entry 0% entry 100%;
+		}
+
+		.cover::after { animation-timeline: --page-2; }
+		.spread:first-child::after { animation-timeline: --page-3; }
+		.spread:last-child::after { animation-timeline: --page-4; }
+	}
+}
+
+@media (min-width: 60rem) and (min-height: 50rem) and (prefers-reduced-motion: no-preference) {
+	.gatefold {
+		--turn: 1200ms;
+		--turn-ease: cubic-bezier(0.77, 0, 0.175, 1);
+	}
+
+	.gatefold .cover,
+	.gatefold .closer {
+		z-index: 3;
+		display: block;
+		padding: 0;
+		background: none;
+		box-shadow: none;
+		perspective: 2400px;
+		container-type: inline-size;
+		pointer-events: none;
+	}
+
+	.gatefold .cover { transition: visibility 0s; }
+
+	.gatefold.cover-open .cover {
+		visibility: hidden;
+		transition: visibility 0s var(--turn);
+	}
+
+	.gatefold .closer {
+		position: fixed;
+		inset: 0;
+		visibility: hidden;
+		transition: visibility 0s var(--turn), transform var(--turn) var(--turn-ease);
+	}
+
+	.gatefold.back-closed .closer {
+		visibility: visible;
+		transition: visibility 0s, transform var(--turn) var(--turn-ease);
+	}
+
+	.gatefold.last-page .closer { transform: translateY(-100%); }
+
+	.gatefold .back {
+		position: fixed;
+		inset: 0;
+		z-index: 2;
+		height: auto;
+		box-shadow: none;
+		visibility: hidden;
+		transition: visibility 0s var(--turn);
+	}
+
+	.gatefold.last-page .back {
+		visibility: visible;
+		transition: visibility 0s;
+	}
+
+	.gatefold .cover::after { content: none; }
+
+	.gatefold main {
+		display: block;
+		position: sticky;
+		top: 0;
+		height: 100svh;
+		margin-top: -100svh;
+		overflow: hidden;
+		background: var(--stock);
+	}
+
+	.gatefold .gap {
+		display: block;
+		height: 400svh;
+	}
+
+	.gatefold .stops span:nth-child(5) { display: block; }
+
+	.gatefold .spread {
+		position: absolute;
+		inset: 0;
+		height: auto;
+		overflow: visible;
+		background: none;
+		box-shadow: none;
+	}
+
+	.gatefold .spread::after { content: none; }
+
+	.gatefold .page {
+		position: relative;
+		z-index: 1;
+		background: var(--stock);
+		backface-visibility: hidden;
+	}
+
+	.gatefold .spread:first-child .page:last-child,
+	.gatefold .spread:last-child .page:first-child {
+		z-index: 2;
+		will-change: transform;
+		transition: transform var(--turn) var(--turn-ease);
+	}
+
+	.gatefold .spread:first-child .page:last-child {
+		transform-origin: left center;
+		transform: perspective(2400px) rotateY(0deg);
+	}
+
+	.gatefold.page-turned .spread:first-child .page:last-child {
+		transform: perspective(2400px) rotateY(-180deg);
+	}
+
+	.gatefold .spread:last-child .page:first-child {
+		transform-origin: right center;
+		transform: perspective(2400px) rotateY(180deg);
+	}
+
+	.gatefold.page-turned .spread:last-child .page:first-child {
+		transform: perspective(2400px) rotateY(0deg);
+	}
+
+	.gatefold .leaf {
+		display: block;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 50%;
+		overflow: hidden;
+		pointer-events: auto;
+		backface-visibility: hidden;
+		will-change: transform;
+		transition: transform var(--turn) var(--turn-ease);
+	}
+
+	.gatefold .leaf-left {
+		left: 0;
+		width: calc(50% + 1px);
+		transform-origin: left center;
+	}
+
+	.gatefold .leaf-right {
+		right: 0;
+		transform-origin: right center;
+	}
+
+	.gatefold.cover-open .cover .leaf-left,
+	.gatefold:not(.back-closed) .closer .leaf-left { transform: rotateY(-100deg); }
+
+	.gatefold.cover-open .cover .leaf-right,
+	.gatefold:not(.back-closed) .closer .leaf-right { transform: rotateY(100deg); }
+
+	.gatefold .leaf::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: oklch(0.12 0.03 165);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity var(--turn) var(--turn-ease);
+	}
+
+	.gatefold.cover-open .cover .leaf::after,
+	.gatefold:not(.back-closed) .closer .leaf::after { opacity: 0.5; }
+
+	.gatefold .leaf-inner {
+		display: grid;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 100cqw;
+		padding: clamp(0.75rem, 2vw, 1.5rem);
+		background: var(--cover);
+	}
+
+	.gatefold .leaf-left .leaf-inner { left: 0; }
+	.gatefold .leaf-right .leaf-inner { right: 0; }
+
+	.gatefold .back .reveal,
+	.gatefold .back .reveal.is-in {
+		opacity: 0;
+		transform: translateY(1.5rem);
+		transition: opacity 200ms ease, transform 200ms ease;
+	}
+
+	.gatefold.last-page .back .reveal,
+	.gatefold.last-page .back .reveal.is-in {
+		opacity: 1;
+		transform: none;
+		transition: opacity 900ms var(--ease) 500ms, transform 900ms var(--ease) 500ms;
+	}
+
+	.gatefold.no-turn .cover,
+	.gatefold.no-turn .closer,
+	.gatefold.no-turn .back,
+	.gatefold.no-turn .leaf,
+	.gatefold.no-turn .leaf::after,
+	.gatefold.no-turn .page,
+	.gatefold.no-turn .back .reveal {
+		transition: none !important;
+	}
+}
+</style>
+</head>
+<body>
+
+<div class="stops" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+
+<header class="cover">
+	<div class="cover-frame">
+		<p class="cover-est" lang="fr">Maison fondée en 2026</p>
+
+		<h1 class="wordmark" aria-label="Petit Café"><span class="word" aria-hidden="true"><span class="letter" style="--i:0">P</span><span class="letter" style="--i:1">e</span><span class="letter" style="--i:2">t</span><span class="letter" style="--i:3">i</span><span class="letter" style="--i:4">t</span></span> <span class="word" aria-hidden="true"><span class="letter" style="--i:5">C</span><span class="letter" style="--i:6">a</span><span class="letter" style="--i:7">f</span><span class="letter" style="--i:8">é</span></span></h1>
+		<p class="cover-line">A small menu bar app that keeps your Mac awake.</p>
+		<a class="plaque" data-download href="https://github.com/thomasguillot/petit-cafe/releases/latest">Download for macOS</a>
+		<p class="cover-meta"><span data-version>Version 1.0.0</span>. Apple silicon, macOS Tahoe 26 or later. Free and open source.</p>
+	</div>
+</header>
+
+<main>
+	<div class="spread">
+		<section class="page" aria-labelledby="carte">
+			<div class="page-inner reveal">
+				<h2 class="course" id="carte" lang="fr"><span>La Carte</span></h2>
+				<p class="status" id="status" aria-live="polite">Your Mac can sleep. Choose a café.</p>
+
+				<ul class="carte" role="list">
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="express">
+						<span class="dish-line"><span class="dish-name" lang="fr">Express</span><span class="leader" aria-hidden="true"></span><span class="dish-price">15 Minutes</span></span>
+						<span class="dish-note">For a download that is nearly there.</span>
+					</button></li>
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="noisette">
+						<span class="dish-line"><span class="dish-name" lang="fr">Noisette</span><span class="leader" aria-hidden="true"></span><span class="dish-price">30 Minutes</span></span>
+						<span class="dish-note">A short call with the screen on.</span>
+					</button></li>
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="allonge">
+						<span class="dish-line"><span class="dish-name" lang="fr">Allongé</span><span class="leader" aria-hidden="true"></span><span class="dish-price">1 Hour</span></span>
+						<span class="dish-note">A presentation, start to finish.</span>
+					</button></li>
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="double">
+						<span class="dish-line"><span class="dish-name" lang="fr">Double</span><span class="leader" aria-hidden="true"></span><span class="dish-price">2 Hours</span></span>
+						<span class="dish-note">A film, or a long build.</span>
+					</button></li>
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="grand-creme">
+						<span class="dish-line"><span class="dish-name" lang="fr">Grand crème</span><span class="leader" aria-hidden="true"></span><span class="dish-price">5 Hours</span></span>
+						<span class="dish-note">A working afternoon.</span>
+					</button></li>
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="a-volonte">
+						<span class="dish-line"><span class="dish-name" lang="fr">À volonté</span><span class="leader" aria-hidden="true"></span><span class="dish-price">Indefinitely</span></span>
+						<span class="dish-note">Until you say otherwise.</span>
+					</button></li>
+				</ul>
+
+				<p class="footnote">Every timed café ends on its own.</p>
+			</div>
+		</section>
+
+		<section class="page" aria-labelledby="comptoir">
+			<div class="page-inner reveal">
+				<h2 class="course" id="comptoir" lang="fr"><span>Le Comptoir</span></h2>
+				<p class="lede">Petit Café lives in the menu bar. Click the cup, choose a café, and carry on. Or right-click it for <span lang="fr">À volonté</span>.</p>
+
+				<figure class="plate">
+					<div class="desk">
+						<div class="menubar">
+							<span class="mb-cup">
+								<svg viewBox="0 0 24 24" aria-hidden="true">
+									<path d="M18.2505 10.5H19.6403C21.4918 10.5 22.0421 11.1817 21.9975 12.5C21.9237 14.6836 20.939 16.8047 17 17.5M5.94627 20.6145C2.57185 18.02 2.07468 14.3401 2.00143 10.5001C1.96979 8.8413 2.49207 8.5 4.7 8.5H15.3C17.5079 8.5 18.0302 8.8413 17.9986 10.5001C17.9253 14.3401 17.4281 18.02 14.0537 20.6145C13.0934 21.3528 12.2637 21.5 10.9 21.5H9.1C7.73622 21.5 6.90658 21.3528 5.94627 20.6145Z"/>
+									<path class="steam" d="M11.3097 2.5C10.763 2.83861 10.002 4 10.002 5.5M7.53971 4C7.53971 4 7 4.5 7 5.5M13.5397 4C13.5397 4 13 4.5 13 5.5"/>
+								</svg>
+							</span>
+							<time class="clock" id="clock"></time>
+						</div>
+						<div class="menu" id="menu" role="group" aria-label="A working replica of the Petit Café menu">
+							<p class="menu-status" id="menu-status">Your Mac can sleep</p>
+							<hr>
+							<button type="button" aria-pressed="false" data-cafe="express"><span lang="fr">Express</span> <span class="badge">15 Minutes</span></button>
+							<button type="button" aria-pressed="false" data-cafe="noisette"><span lang="fr">Noisette</span> <span class="badge">30 Minutes</span></button>
+							<button type="button" aria-pressed="false" data-cafe="allonge"><span lang="fr">Allongé</span> <span class="badge">1 Hour</span></button>
+							<button type="button" aria-pressed="false" data-cafe="double"><span lang="fr">Double</span> <span class="badge">2 Hours</span></button>
+							<button type="button" aria-pressed="false" data-cafe="grand-creme"><span lang="fr">Grand crème</span> <span class="badge">5 Hours</span></button>
+							<button type="button" aria-pressed="false" data-cafe="a-volonte"><span lang="fr">À volonté</span> <span class="badge">Indefinitely</span></button>
+							<hr>
+							<button type="button" aria-pressed="true" data-login>Launch at Login</button>
+							<hr>
+							<button type="button" data-about>About Petit Café</button>
+							<button type="button" data-quit>Quit Petit Café <span class="badge">⌘Q</span></button>
+						</div>
+					</div>
+					<figcaption>The menu. Try it.</figcaption>
+				</figure>
+			</div>
+		</section>
+	</div>
+
+	<div class="spread">
+		<section class="page" aria-labelledby="maison">
+			<div class="page-inner reveal">
+				<h2 class="course" id="maison" lang="fr"><span>La Maison</span></h2>
+				<dl class="maison">
+					<div><dt>One menu.</dt> <dd>There is nothing to set up. It launches at login unless you untick that in the menu.</dd></div>
+					<div><dt>It minds the clock.</dt> <dd>A timed café ends when it should, so your Mac is never left awake by accident.</dd></div>
+					<div><dt>Like caffeinate.</dt> <dd>What the Terminal command does, one click away in the menu bar.</dd></div>
+					<div><dt>It keeps to itself.</dt> <dd>No analytics, no account. The only thing it fetches is a check for updates, which you can switch off.</dd></div>
+				</dl>
+			</div>
+		</section>
+
+		<section class="page" aria-labelledby="service">
+			<div class="page-inner reveal">
+				<h2 class="course" id="service" lang="fr"><span>Le Service</span></h2>
+				<p class="lede">Petit Café runs on Macs with Apple silicon, on macOS Tahoe 26 or later. There is no Intel build. It is unsigned, so macOS asks before its first launch, once.</p>
+				<ol class="steps">
+					<li>Open the disk image and drag <strong>Petit Café</strong> to Applications.</li>
+					<li>Double-click it. When macOS says it can’t verify the developer, click <strong>Done</strong>, not Move to Trash.</li>
+					<li>Open <strong>System Settings <span class="arrow">→</span> Privacy &amp; Security</strong>, scroll to Security, and click <strong>Open Anyway</strong>.</li>
+				</ol>
+				<p class="footnote">After that, look for the cup in your menu bar.</p>
+			</div>
+		</section>
+	</div>
+</main>
+
+<div class="gap" aria-hidden="true"></div>
+
+<footer class="back">
+	<div class="back-frame">
+		<div class="reveal">
+		<p class="back-title" lang="fr">Service compris</p>
+		<p class="back-line">Petit Café is free and open source, released under the MIT License.</p>
+		<a class="plaque" data-download href="https://github.com/thomasguillot/petit-cafe/releases/latest">Download for macOS</a>
+		<div class="pourboire">
+			<h2 class="course" lang="fr"><span>Pourboire</span></h2>
+			<p>Service is included. If you’d like to leave a tip anyway, you can <a href="https://buymeacoffee.com/thomasguillot" target="_blank" rel="noopener">buy me a café<span class="ext" aria-hidden="true">↗︎</span><span class="sr-only"> (opens in a new tab)</span></a>.</p>
+		</div>
+		<ul class="colophon" role="list">
+			<li><a href="https://github.com/thomasguillot/petit-cafe" target="_blank" rel="noopener">Source on GitHub<span class="ext" aria-hidden="true">↗︎</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+			<li><a href="https://github.com/thomasguillot/petit-cafe/releases" target="_blank" rel="noopener">Releases<span class="ext" aria-hidden="true">↗︎</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+			<li><a href="https://github.com/thomasguillot/petit-cafe/blob/main/LICENSE" target="_blank" rel="noopener">License<span class="ext" aria-hidden="true">↗︎</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+		</ul>
+		<p class="signature">Thomas Guillot, 2026</p>
+		</div>
+	</div>
+</footer>
+
+<script>
+(function () {
+	var root = document.documentElement;
+	var status = document.getElementById("status");
+	var menuStatus = document.getElementById("menu-status");
+	var clock = document.getElementById("clock");
+	var seconds = { express: 900, noisette: 1800, allonge: 3600, double: 7200, "grand-creme": 18000, "a-volonte": null };
+	var time = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+	var day = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
+	var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+	var active = null;
+	var expiry;
+	var swap;
+
+	function each(selector, fn) {
+		Array.prototype.forEach.call(document.querySelectorAll(selector), fn);
+	}
+
+	function announce(text) {
+		clearTimeout(swap);
+		if (reduced || status.textContent === text) {
+			status.classList.remove("is-swapping");
+			status.textContent = text;
+			return;
+		}
+		status.classList.add("is-swapping");
+		swap = setTimeout(function () {
+			status.textContent = text;
+			status.classList.remove("is-swapping");
+		}, 120);
+	}
+
+	function pick(button, commit) {
+		if (reduced || !button.closest(".menu")) { commit(); return; }
+		if (button.classList.contains("picking")) { return; }
+		button.classList.add("picking", "hl");
+		setTimeout(function () { button.classList.remove("hl"); }, 90);
+		setTimeout(function () { button.classList.add("hl"); }, 180);
+		setTimeout(function () {
+			button.classList.remove("picking", "hl");
+			commit();
+		}, 320);
+	}
+
+	function serve(cafe) {
+		clearTimeout(expiry);
+		active = cafe;
+		each("[data-cafe]", function (button) {
+			button.setAttribute("aria-pressed", String(button.dataset.cafe === cafe));
+		});
+		root.dataset.state = cafe ? "on" : "off";
+
+		if (!cafe) {
+			menuStatus.textContent = "Your Mac can sleep";
+			announce("Your Mac can sleep. Choose a café.");
+			return;
+		}
+
+		var text = "Keeping your Mac awake";
+		if (seconds[cafe]) {
+			text += " until " + time.format(new Date(Date.now() + seconds[cafe] * 1000));
+			expiry = setTimeout(function () { serve(null); }, seconds[cafe] * 1000);
+		}
+		menuStatus.textContent = text;
+		announce(text + ".");
+	}
+
+	each("[data-cafe]", function (button) {
+		button.addEventListener("click", function () {
+			pick(button, function () {
+				serve(active === button.dataset.cafe ? null : button.dataset.cafe);
+			});
+		});
+	});
+
+	each("[data-login]", function (button) {
+		button.addEventListener("click", function () {
+			pick(button, function () {
+				button.setAttribute("aria-pressed", String(button.getAttribute("aria-pressed") !== "true"));
+			});
+		});
+	});
+
+	each("[data-about]", function (button) {
+		button.addEventListener("click", function () {
+			pick(button, function () {});
+		});
+	});
+
+	each("[data-quit]", function (button) {
+		button.addEventListener("click", function () {
+			pick(button, function () { serve(null); });
+		});
+	});
+
+	function fold(section, frameSelector) {
+		var frame = section.querySelector(frameSelector);
+		var copy = frame.cloneNode(true);
+		copy.setAttribute("aria-hidden", "true");
+		Array.prototype.forEach.call(copy.querySelectorAll("a"), function (link) {
+			link.tabIndex = -1;
+		});
+
+		[["left", frame], ["right", copy]].forEach(function (side) {
+			var leaf = document.createElement("div");
+			var inner = document.createElement("div");
+			leaf.className = "leaf leaf-" + side[0];
+			inner.className = "leaf-inner";
+			inner.appendChild(side[1]);
+			leaf.appendChild(inner);
+			section.appendChild(leaf);
+		});
+
+		var plaques = section.querySelectorAll(".plaque");
+		var mirror = function (type, name, on) {
+			Array.prototype.forEach.call(plaques, function (plaque) {
+				plaque.addEventListener(type, function () {
+					Array.prototype.forEach.call(plaques, function (twin) { twin.classList.toggle(name, on); });
+				});
+			});
+		};
+		mirror("pointerenter", "is-hover", true);
+		mirror("pointerleave", "is-hover", false);
+		mirror("focus", "is-focus", true);
+		mirror("blur", "is-focus", false);
+	}
+
+	if (!reduced) {
+		// The closed menu at the end is the front cover again: a second, inert copy of it.
+		var closer = document.createElement("div");
+		closer.className = "closer";
+		closer.setAttribute("aria-hidden", "true");
+		closer.inert = true;
+		["left", "right"].forEach(function (side) {
+			var leaf = document.createElement("div");
+			var inner = document.createElement("div");
+			leaf.className = "leaf leaf-" + side;
+			inner.className = "leaf-inner";
+			inner.appendChild(document.querySelector(".cover .cover-frame").cloneNode(true));
+			leaf.appendChild(inner);
+			closer.appendChild(leaf);
+		});
+		document.body.appendChild(closer);
+
+		fold(document.querySelector(".cover"), ".cover-frame");
+
+		// The covers turn on a clock, not on the scroll position: a wheel or trackpad moves in
+		// steps, and a turn scrubbed by those steps stutters.
+		var turning = false;
+		var turnCovers = function () {
+			turning = false;
+			var page = window.scrollY / window.innerHeight;
+			root.classList.toggle("cover-open", page > 0.15);
+			root.classList.toggle("page-turned", page > 1.15);
+			root.classList.toggle("back-closed", page > 2.15);
+			root.classList.toggle("last-page", page > 3.15);
+		};
+		// The browser restores the scroll position after this script runs. Until that has
+		// settled the covers jump straight to their state instead of turning.
+		root.classList.add("no-turn");
+		turnCovers();
+		root.classList.add("gatefold");
+		var settle = function () {
+			requestAnimationFrame(function () {
+				turnCovers();
+				requestAnimationFrame(function () { root.classList.remove("no-turn"); });
+			});
+		};
+		if (document.readyState === "complete") {
+			settle();
+		} else {
+			window.addEventListener("load", function () { setTimeout(settle, 0); });
+		}
+		window.addEventListener("scroll", function () {
+			if (turning) { return; }
+			turning = true;
+			requestAnimationFrame(turnCovers);
+		}, { passive: true });
+	}
+
+	function tick() {
+		var now = new Date();
+		clock.dateTime = now.toISOString();
+		clock.textContent = day.format(now) + " " + time.format(now);
+	}
+	tick();
+	setInterval(tick, 15000);
+
+	if ("IntersectionObserver" in window) {
+		root.classList.add("js");
+		var pages = new IntersectionObserver(function (entries) {
+			entries.forEach(function (entry) {
+				if (entry.isIntersecting) {
+					entry.target.classList.add("is-in");
+				} else if (entry.intersectionRatio === 0) {
+					entry.target.classList.remove("is-in");
+				}
+			});
+		}, { threshold: [0, 0.35] });
+		each(".reveal", function (node) { pages.observe(node); });
+	}
+
+	fetch("https://api.github.com/repos/thomasguillot/petit-cafe/releases/latest")
+		.then(function (response) { return response.ok ? response.json() : Promise.reject(); })
+		.then(function (release) {
+			var dmg = (release.assets || []).find(function (asset) { return asset.name.endsWith(".dmg"); });
+			if (dmg) {
+				each("[data-download]", function (link) { link.href = dmg.browser_download_url; });
+			}
+			if (release.tag_name) {
+				each("[data-version]", function (node) {
+					node.textContent = "Version " + release.tag_name.replace(/^v/, "");
+				});
+			}
+		})
+		.catch(function () {});
+})();
+</script>
+</body>
+</html>

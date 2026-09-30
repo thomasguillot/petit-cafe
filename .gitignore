@@ -1,0 +1,26 @@
+# Local working docs / agent scratch: never committed
+/docs
+
+# Release artifacts
+/dist
+/App/build
+
+# Swift / SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+DerivedData/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# Local tooling dot-directories (editor/agent caches); keep real repo dirs
+.*/
+!.github/
+!.well-known/

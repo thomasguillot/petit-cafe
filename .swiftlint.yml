@@ -1,0 +1,23 @@
+# SwiftLint config. Defers to the committed .swift-format on whitespace, indentation and line
+# length (110), so the two tools never fight; those rules are disabled here.
+included:
+  - App/Sources
+  - PetitCafeKit/Sources
+disabled_rules:
+  - trailing_whitespace
+  - opening_brace
+  - statement_position
+  - todo
+  - line_length
+  - trailing_comma
+  # GitHubRelease nests its Asset type and coding keys, as in Hosts Switchr.
+  - nesting
+  # Keep the non-failable String(decoding:as:) for command output: a stray invalid byte should not
+  # discard the whole message.
+  - optional_data_string_conversion
+cyclomatic_complexity:
+  warning: 15
+identifier_name:
+  min_length: 1
+type_name:
+  min_length: 2
