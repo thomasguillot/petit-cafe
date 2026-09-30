@@ -8,13 +8,13 @@ struct CafeNoticeTests {
     }
 
     @Test func aTimedCafeSaysWhenItEnds() {
-        let notice = CafeNotice.forChange(from: nil, to: .express, endTime: "14:30")
+        let notice = CafeNotice.forChange(from: nil, to: .expresso, endTime: "14:30")
 
-        #expect(notice == CafeNotice(title: "Express", body: "Keeping your Mac awake until 14:30."))
+        #expect(notice == CafeNotice(title: "Expresso", body: "Keeping your Mac awake until 14:30."))
     }
 
     @Test func aVolonteSaysItRunsUntilSwitchedOff() {
-        let notice = CafeNotice.forChange(from: .express, to: .aVolonte, endTime: nil)
+        let notice = CafeNotice.forChange(from: .expresso, to: .aVolonte, endTime: nil)
 
         #expect(notice == CafeNotice(title: "À volonté", body: "Keeping your Mac awake until you switch it off."))
     }

@@ -985,7 +985,7 @@ main { display: contents; }
 		<h1 class="wordmark" aria-label="Petit Café"><span class="word" aria-hidden="true"><span class="letter" style="--i:0">P</span><span class="letter" style="--i:1">e</span><span class="letter" style="--i:2">t</span><span class="letter" style="--i:3">i</span><span class="letter" style="--i:4">t</span></span> <span class="word" aria-hidden="true"><span class="letter" style="--i:5">C</span><span class="letter" style="--i:6">a</span><span class="letter" style="--i:7">f</span><span class="letter" style="--i:8">é</span></span></h1>
 		<p class="cover-line">A small menu bar app that keeps your Mac awake.</p>
 		<a class="plaque" data-download href="https://github.com/thomasguillot/petit-cafe/releases/latest">Download for macOS</a>
-		<p class="cover-meta"><span data-version>Version 1.0.0</span>. Apple silicon, macOS Tahoe 26 or later. Free and open source.</p>
+		<p class="cover-meta"><span data-version>Version 1.0.1</span>. Apple silicon, macOS Tahoe 26 or later. Free and open source.</p>
 	</div>
 </header>
 
@@ -997,8 +997,8 @@ main { display: contents; }
 				<p class="status" id="status" aria-live="polite">Your Mac can sleep. Choose a café.</p>
 
 				<ul class="carte" role="list">
-					<li><button class="dish" type="button" aria-pressed="false" data-cafe="express">
-						<span class="dish-line"><span class="dish-name" lang="fr">Express</span><span class="leader" aria-hidden="true"></span><span class="dish-price">15 Minutes</span></span>
+					<li><button class="dish" type="button" aria-pressed="false" data-cafe="expresso">
+						<span class="dish-line"><span class="dish-name" lang="fr">Expresso</span><span class="leader" aria-hidden="true"></span><span class="dish-price">15 Minutes</span></span>
 						<span class="dish-note">For a download that is nearly there.</span>
 					</button></li>
 					<li><button class="dish" type="button" aria-pressed="false" data-cafe="noisette">
@@ -1046,7 +1046,7 @@ main { display: contents; }
 						<div class="menu" id="menu" role="group" aria-label="A working replica of the Petit Café menu">
 							<p class="menu-status" id="menu-status">Your Mac can sleep</p>
 							<hr>
-							<button type="button" aria-pressed="false" data-cafe="express"><span lang="fr">Express</span> <span class="badge">15 Minutes</span></button>
+							<button type="button" aria-pressed="false" data-cafe="expresso"><span lang="fr">Expresso</span> <span class="badge">15 Minutes</span></button>
 							<button type="button" aria-pressed="false" data-cafe="noisette"><span lang="fr">Noisette</span> <span class="badge">30 Minutes</span></button>
 							<button type="button" aria-pressed="false" data-cafe="allonge"><span lang="fr">Allongé</span> <span class="badge">1 Hour</span></button>
 							<button type="button" aria-pressed="false" data-cafe="double"><span lang="fr">Double</span> <span class="badge">2 Hours</span></button>
@@ -1121,7 +1121,7 @@ main { display: contents; }
 	var status = document.getElementById("status");
 	var menuStatus = document.getElementById("menu-status");
 	var clock = document.getElementById("clock");
-	var seconds = { express: 900, noisette: 1800, allonge: 3600, double: 7200, "grand-creme": 18000, "a-volonte": null };
+	var seconds = { expresso: 900, noisette: 1800, allonge: 3600, double: 7200, "grand-creme": 18000, "a-volonte": null };
 	var time = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
 	var day = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
 	var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
